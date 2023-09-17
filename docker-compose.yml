@@ -2,13 +2,10 @@ version: '3.9'
 
 services:
   api1: &api
-    build: 
-      context: .
-      target: base
+    image: boaglio/rinha-backend-bash:latest
     container_name: api1
     depends_on:
-      - postgres
-      - pgbouncer
+      - db-mongodb 
     volumes:
       - .:/app
     command: bash netcat.bash
@@ -22,42 +19,17 @@ services:
     <<: *api
     container_name: api2
 
-  postgres:
-    image: postgres
-    container_name: postgres
+  db-mongodb:
+    image: mongo:latest
     ports:
-      - 5432:5432
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      - "27017:27017"
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     deploy:
       resources:
         limits:
-          cpus: '0.8'
-          memory: '1GB'
-
-  pgbouncer:
-    image: pgbouncer/pgbouncer
-    hostname: pgbouncer
-    container_name: pgbouncer
-    environment:
-      - DATABASES_HOST=postgres
-      - DATABASES_PORT=5432
-      - DATABASES_USER=postgres
-      - DATABASES_PASSWORD=postgres
-      - DATABASES_DBNAME=postgres
-      - DATABASES_POOL_SIZE=100
-      - PGBOUNCER_MAX_CLIENT_CONN=100
-      - PGBOUNCER_RESERVE_POOL_SIZE=100
-      - PGBOUNCER_DEFAULT_POOL_SIZE=100
-    depends_on:
-      - postgres
-    deploy:
-      resources:
-        limits:
-          cpus: '0.1'
-          memory: '0.3GB'
+          cpus: '0.9'
+          memory: '0.9GB'
 
   nginx:
     image: nginx 

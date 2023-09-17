@@ -1,4 +1,4 @@
 function handle_GET_count() {
-  RESULT=`psql -t -h pgbouncer -U postgres -d postgres -p 6432 -c "SELECT COUNT(*) FROM people"`
+  RESULT=$(mongosh db-mongodb:27017/rinhadb --quiet  --eval 'db.people.countDocuments()')
   RESPONSE=$(cat views/count.textr | sed "s/{{count}}/$RESULT/")
 }
